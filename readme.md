@@ -5,10 +5,10 @@ PhotoZen AI 是一个集成了 OCR、CLIP 和人像识别功能的智能相册 A
 ## 项目截图
 
 <div align="center">
-  <img src="docs/image.png" alt="主界面" width="800"/>
+  <img src="docs/image.png" alt="主界面" width="800" style="border-radius: 10px;"/>
   <p>主界面展示</p>
   
-  <img src="docs/image2.png" alt="OCR功能" width="800"/>
+  <img src="docs/image2.png" alt="OCR功能" width="800" style="border-radius: 10px;"/>
   <p>API接口服务</p>
 </div>
 
