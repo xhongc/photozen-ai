@@ -1,0 +1,10 @@
+openvino/model/*
+onnx/*/*.onnx
+openvino/utils/*.onnx
+.env
+.idea/
+__pycache__
+.env
+.vscode/
+.DS_Store
+/data/

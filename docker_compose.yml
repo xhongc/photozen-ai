@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  photozen-ai:
+    image: xhongc/photozen-ai:latest
+    container_name: photozen-ai
+    ports:
+      - "8060:8060"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped

@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhotoZen·AI 管理</title>
+    <style>
+        :root {
+            --macos-bg: #f5f5f7;
+            --macos-card: rgba(255, 255, 255, 0.8);
+            --macos-border: rgba(0, 0, 0, 0.1);
+            --macos-text: #1d1d1f;
+            --macos-primary: #0071e3;
+            --macos-hover: #0077ed;
+            --macos-success: #34c759;
+            --macos-error: #ff3b30;
+            --macos-warning: #ff9500;
+        }
+
+        .site-header {
+            background-color: var(--macos-card);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .site-title {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--macos-text);
+            text-align: center;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+            line-height: 1.5;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--macos-bg);
+            color: var(--macos-text);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 90%;
+            margin: 0 auto;
+        }
+
+        .config-section, .status-section, .api-test-section, .system-monitor-section, .log-section, .model-section {
+            background-color: var(--macos-card);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .config-section {
+            grid-column: 1;
+            grid-row: 1 / span 2;
+        }
+
+        .status-section {
+            grid-column: 2;
+            grid-row: 2;
+        }
+
+        .api-test-section {
+            grid-column: 2;
+            grid-row: 1;
+        }
+
+        .system-monitor-section {
+            grid-column: 1;
+            grid-row: 3;
+        }
+
+        .status-log-section {
+            grid-column: 2;
+            grid-row: 3;
+        }
+
+        .model-section {
+            grid-column: 1 / span 2;
+            grid-row: 4;
+        }
+
+        .docs-section {
+            grid-column: 1 / span 2;
+            grid-row: 5;
+            background-color: var(--macos-card);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        h1 {
+            color: var(--macos-text);
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h1::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 24px;
+            background-color: var(--macos-primary);
+            border-radius: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--macos-text);
+        }
+
+        input[type="text"], 
+        input[type="number"], 
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--macos-border);
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: rgba(255, 255, 255, 0.8);
+            transition: all 0.2s ease;
+        }
+
+        input[type="text"]:focus, 
+        input[type="number"]:focus, 
+        select:focus {
+            outline: none;
+            border-color: var(--macos-primary);
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+        }
+
+        .btn {
+            background-color: var(--macos-primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: block;
+            width: 100%;
+            margin-top: 24px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background-color: var(--macos-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .success {
+            background-color: rgba(52, 199, 89, 0.1);
+            color: var(--macos-success);
+        }
+
+        .error {
+            background-color: rgba(255, 59, 48, 0.1);
+            color: var(--macos-error);
+        }
+
+        .service-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            margin-bottom: 12px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .service-status:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .service-name {
+            font-weight: 500;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .status-indicator::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        .status-ok{
+            background-color: var(--macos-success);
+        }
+        .status-error{
+            background-color: var(--macos-error);
+        }
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+            70% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0;
+            }
+        }
+
+        .status-online {
+            background-color: var(--macos-success);
+        }
+
+        .status-online::after {
+            background-color: var(--macos-success);
+        }
+
+        .status-offline {
+            background-color: var(--macos-error);
+        }
+
+        .status-offline::after {
+            background-color: var(--macos-error);
+        }
+
+        .status-checking {
+            background-color: var(--macos-warning);
+        }
+
+        .status-checking::after {
+            background-color: var(--macos-warning);
+        }
+
+        .check-status-btn {
+            background-color: var(--macos-primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .check-status-btn:hover {
+            background-color: var(--macos-hover);
+            transform: translateY(-1px);
+        }
+
+        .check-status-btn:active {
+            transform: translateY(0);
+        }
+
+        .check-status-btn::before {
+            content: '↻';
+            font-size: 16px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+
+            .config-section, .status-section, .api-test-section, 
+            .system-monitor-section, .log-section, .model-section {
+                grid-column: 1;
+            }
+        }
+
+        .api-test-area {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px dashed var(--macos-border);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .api-test-area.dragover {
+            background-color: rgba(0, 113, 227, 0.1);
+            border-color: var(--macos-primary);
+        }
+
+        .resource-monitor {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .resource-item {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .resource-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--macos-primary);
+        }
+
+        .log-container {
+            height: 400px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 10px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        .log-entry.info { background-color: rgba(52, 199, 89, 0.1); }
+        .log-entry.warning { background-color: rgba(255, 149, 0, 0.1); }
+        .log-entry.error { background-color: rgba(255, 59, 48, 0.1); }
+
+        .model-info {
+            margin-top: 20px;
+        }
+
+        .model-item {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .model-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .model-details {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .service-status-simple {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .service-status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* 登录弹窗样式 */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .login-modal {
+            background-color: var(--macos-card);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 400px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .login-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--macos-text);
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid var(--macos-border);
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--macos-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .login-btn:hover {
+            background-color: var(--macos-hover);
+        }
+        .toggle-btn{
+            background-color: var(--macos-primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 5px 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-btn.loading {
+            position: relative;
+            color: transparent;
+            pointer-events: none;
+        }
+        
+        .toggle-btn.loading::after {
+            content: "";
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            left: 50%;
+            margin-top: -8px;
+            margin-left: -8px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: button-loading-spinner 0.8s linear infinite;
+        }
+        
+        @keyframes button-loading-spinner {
+            from {
+                transform: rotate(0turn);
+            }
+            to {
+                transform: rotate(1turn);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录弹窗 -->
+    <div id="loginOverlay" class="login-overlay" style="backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
+        <div class="login-modal">
+            <h2 class="login-title">PhotoZen·AI 登录</h2>
+            <input type="text" id="username" class="login-input" placeholder="请输入API_KEY" />
+            <button id="loginBtn" class="login-btn">登录</button>
+        </div>
+    </div>
+
+    <header class="site-header">
+        <h1 class="site-title">PhotoZen·AI 管理</h1>
+    </header>
+    <div class="main-container">
+        <div class="config-section">
+            <h1>系统设置</h1>
+            <form id="envForm">
+                <div class="form-group">
+                    <label for="apiKey">API 认证密钥 (API_KEY)</label>
+                    <input type="text" id="apiKey" name="API_KEY" value="{{ env_vars.API_KEY }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="httpPort">HTTP 端口 (HTTP_PORT)</label>
+                    <input type="number" id="httpPort" name="HTTP_PORT" value="{{ env_vars.HTTP_PORT }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="mtUseDml">使用 DML (MT_USE_DML)</label>
+                    <select id="mtUseDml" name="MT_USE_DML">
+                        <option value="on" {% if env_vars.MT_USE_DML == 'on' %}selected{% endif %}>开启</option>
+                        <option value="off" {% if env_vars.MT_USE_DML == 'off' %}selected{% endif %}>关闭</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="autoLoadTxtModal">自动加载 CLIP 文本模型 (AUTO_LOAD_TXT_MODAL)</label>
+                    <select id="autoLoadTxtModal" name="AUTO_LOAD_TXT_MODAL">
+                        <option value="on" {% if env_vars.AUTO_LOAD_TXT_MODAL == 'on' %}selected{% endif %}>开启</option>
+                        <option value="off" {% if env_vars.AUTO_LOAD_TXT_MODAL == 'off' %}selected{% endif %}>关闭</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="detectorBackend">检测器后端 (DETECTOR_BACKEND)</label>
+                    <input type="text" id="detectorBackend" name="DETECTOR_BACKEND" value="{{ env_vars.DETECTOR_BACKEND }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="recognitionModel">识别模型 (RECOGNITION_MODEL)</label>
+                    <input type="text" id="recognitionModel" name="RECOGNITION_MODEL" value="{{ env_vars.RECOGNITION_MODEL }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="detectionThresh">检测阈值 (DETECTION_THRESH)</label>
+                    <input type="number" id="detectionThresh" name="DETECTION_THRESH" value="{{ env_vars.DETECTION_THRESH }}" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="serverRestartTime">服务器重启时间 (SERVER_RESTART_TIME)</label>
+                    <input type="number" id="serverRestartTime" name="SERVER_RESTART_TIME" value="{{ env_vars.SERVER_RESTART_TIME }}">
+                </div>
+                
+                <button type="submit" class="btn">重启应用</button>
+            </form>
+            <div id="statusMessage" class="status hidden"></div>
+        </div>
+
+        <div class="api-test-section">
+            <h1>系统资源监控</h1>
+            <div class="resource-monitor">
+                <div class="resource-item">
+                    <div class="resource-label">CPU 使用率</div>
+                    <div class="resource-value" id="cpuUsage">{{ cpu_percent }}%</div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-label">内存使用</div>
+                    <div class="resource-value" id="memoryUsage">{{ memory_usage }} MB</div>
+                </div>
+                <div class="resource-item">
+                    <div class="resource-label">内存使用率</div>
+                    <div class="resource-value" id="memoryUsagePercent">{{ memory_usage_percent }}%</div>
+                </div>
+            </div>
+        </div>
+        <div class="status-section">
+            <h1>服务状态与日志</h1>
+            <div class="service-status-simple">
+                <div class="service-status-item">
+                    <span class="status-indicator {% if state.ocr_state %}status-ok{% else %}status-error{% endif %}" id="ocr-status-indicator-simple"></span>
+                    <span>OCR</span>
+                    <button onclick="toggleService('ocr')" class="toggle-btn">{% if state.ocr_state %}关闭{% else %}开启{% endif %}</button>
+                </div>
+                <div class="service-status-item">
+                    <span class="status-indicator {% if state.clip_img_state and state.clip_txt_state %}status-ok{% else %}status-error{% endif %}" id="clip-status-indicator-simple"></span>
+                    <span>CLIP</span>
+                    <button onclick="toggleService('clip')" class="toggle-btn">{% if state.clip_img_state and state.clip_txt_state %}关闭{% else %}开启{% endif %}</button>
+                </div>
+                <div class="service-status-item">
+                    <span class="status-indicator {% if state.face_state %}status-ok{% else %}status-error{% endif %}" id="face-status-indicator-simple"></span>
+                    <span>Face</span>
+                    <button onclick="toggleService('face')" class="toggle-btn">{% if state.face_state %}关闭{% else %}开启{% endif %}</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="logLevel">运行日志</label>
+            </div>
+            <div class="log-container" id="dockerLogContainer"></div>
+        </div>
+
+        <div class="docs-section">
+            <h1>接口文档</h1>
+            <iframe src="/docs" style="width: 100%; height: 800px; border: none; border-radius: 12px;"></iframe>
+        </div>
+    </div>
+
+    <script>
+        // document.getElementById('dockerLogContainer').innerHTML = `{{ docker_log }}`;
+        // document.getElementById('dockerLogContainer').scrollTop = document.getElementById('dockerLogContainer').scrollHeight;
+        function toggleService(service){
+            // 获取当前按钮
+            const buttons = document.querySelectorAll('.toggle-btn');
+            const currentButton = Array.from(buttons).find(btn => btn.getAttribute('onclick').includes(service));
+            
+            // 添加加载状态
+            if (currentButton) {
+                currentButton.classList.add('loading');
+                const originalText = currentButton.textContent;
+                currentButton.setAttribute('data-original-text', originalText);
+            }
+            
+            fetch(`/toggle_service/${service}`, {
+                method: 'POST',
+                headers: {
+                    'API-KEY': document.getElementById('apiKey').value
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('操作失败');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+                // 移除加载状态
+                if (currentButton) {
+                    currentButton.classList.remove('loading');
+                }
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('操作失败:', error);
+                // 移除加载状态
+                if (currentButton) {
+                    currentButton.classList.remove('loading');
+                }
+            });
+        }
+        // 登录验证逻辑
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginOverlay = document.getElementById('loginOverlay');
+            const loginBtn = document.getElementById('loginBtn');
+            const usernameInput = document.getElementById('username');
+
+            // 检查是否已登录
+            if (localStorage.getItem('isLoggedIn') !== 'true') {
+                loginOverlay.style.display = 'flex';
+            } else {
+                loginOverlay.style.display = 'none';
+            }
+
+            // 登录按钮点击事件
+            loginBtn.addEventListener('click', function() {
+                const username = usernameInput.value;
+                const apiKey = document.getElementById('apiKey').value
+                // 这里使用简单的硬编码验证，实际应用中应该使用后端验证
+                if (username === apiKey) {
+                    localStorage.setItem('isLoggedIn', 'true');
+                    loginOverlay.style.display = 'none';
+                } else {
+                    alert('API_KEY错误！');
+                }
+            });
+
+            // 添加回车键登录支持
+            passwordInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    loginBtn.click();
+                }
+            });
+        });
+
+        document.getElementById('envForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const envVars = {};
+            
+            for (const [key, value] of formData.entries()) {
+                envVars[key] = value;
+            }
+            
+            // 发送到服务器保存
+            fetch('/save_env', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'API-KEY': document.getElementById('apiKey').value
+                },
+                body: JSON.stringify(envVars)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('保存失败');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const statusElement = document.getElementById('statusMessage');
+                statusElement.textContent = '配置已成功保存！';
+                statusElement.className = 'status success';
+                statusElement.classList.remove('hidden');
+                
+                // 3秒后隐藏消息
+                setTimeout(() => {
+                    statusElement.classList.add('hidden');
+                }, 3000);
+            })
+            .catch(error => {
+                const statusElement = document.getElementById('statusMessage');
+                statusElement.textContent = '系统重启中，请稍后刷新页面...';
+                statusElement.className = 'status success';
+                statusElement.classList.remove('hidden');
+            });
+        });
+
+        function handleFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            apiResult.classList.remove('hidden');
+            apiResult.textContent = '处理中...';
+            apiResult.className = 'status';
+
+            fetch(apiEndpoint.value, {
+                method: 'POST',
+                headers: {
+                    'API-KEY': document.getElementById('apiKey').value
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                apiResult.textContent = JSON.stringify(data, null, 2);
+                apiResult.className = 'status success';
+            })
+            .catch(error => {
+                apiResult.textContent = '错误: ' + error.message;
+                apiResult.className = 'status error';
+            });
+        }
+
+        // 系统资源监控
+        function updateResourceMonitor() {
+            fetch('/system_stats', {
+                headers: {
+                    'API-KEY': document.getElementById('apiKey').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('cpuUsage').textContent = data.cpu + '%';
+                document.getElementById('memoryUsage').textContent = data.memory + '%';
+                document.getElementById('modelStatus').textContent = data.modelStatus;
+            });
+        }
+
+       
+        // 自动刷新功能
+        function autoRefresh() {
+            // 刷新运行日志
+            fetch('/logs', {
+                headers: {
+                    'API-KEY': document.getElementById('apiKey').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const logContainer = document.getElementById('dockerLogContainer');
+                logContainer.innerHTML = data.logs.map(log => 
+                    `<div class="log-entry">${log}</div>`
+                ).join('');
+                logContainer.scrollTop = logContainer.scrollHeight;
+            });
+
+            // 刷新系统资源监控
+            fetch('/system_stats', {
+                headers: {
+                    'API-KEY': document.getElementById('apiKey').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('cpuUsage').textContent = data.cpu + '%';
+                document.getElementById('memoryUsage').textContent = data.memory + ' MB';
+                document.getElementById('memoryUsagePercent').textContent = data.memory_percent + '%';
+            });
+        }
+
+        // 每5秒执行一次自动刷新
+        setInterval(autoRefresh, 5000);
+
+        // 页面加载时立即执行一次
+        document.addEventListener('DOMContentLoaded', autoRefresh);
+    </script>
+</body>
+</html> 
