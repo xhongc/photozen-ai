@@ -20,7 +20,7 @@ class AppConfig:
         self.on_win = sys.platform.startswith('win')
         
         # API配置
-        self.api_auth_key = os.getenv("API_KEY", "xhongc")
+        self.api_auth_key = os.getenv("API_KEY", "photozen")
         self.http_port = int(os.getenv("HTTP_PORT", "8060"))
         self.server_restart_time = int(os.getenv("SERVER_RESTART_TIME", "300"))
         

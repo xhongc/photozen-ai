@@ -41,7 +41,7 @@ docker build -t xhongc/photozen-ai .
 
 2. 运行容器：
 ```bash
-docker run -d -p 8010:8060 -v /var/run/docker.sock:/var/run/docker.sock --name photozen-ai photo-ai
+docker run -d -p 8060:8060 -v /var/run/docker.sock:/var/run/docker.sock --name photozen-ai photo-ai
 ```
 
 ### 使用 Docker Compose 部署
@@ -133,8 +133,3 @@ A: 可以尝试以下方法：
 ## 贡献
 
 欢迎提交 Issue 和 Pull Request 来帮助改进项目。
-
-## 联系方式
-
-- 邮箱：your-email@example.com
-- GitHub：[your-github-username](https://github.com/your-github-username)
